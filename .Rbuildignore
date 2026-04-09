@@ -1,0 +1,10 @@
+^whack\.Rproj$
+^\.Rproj\.user$
+^\.positai$
+^\.claude$
+^_pkgdown\.yml$
+^docs$
+^pkgdown$
+^vignettes/articles$
+^README\.Rmd$
+^LICENSE\.md$
