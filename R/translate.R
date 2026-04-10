@@ -1,54 +1,39 @@
 #' Translate column names of a data.frame or lazy tibble using a dictionary
 #'
-#' This function allows renaming column names in an input object (a `data.frame` or `tbl_lazy`)
-#' by translating them with a user-supplied dictionary. Users can choose to translate
-#' column names from "old" to "new" or vice versa.
+#' Rename columns in a `data.frame` or `tbl_lazy` by mapping them through a
+#' user-supplied dictionary. Columns not found in the dictionary are left
+#' unchanged.
 #'
-#' @param d A `data.frame` or `tbl_lazy` object whose column names need to be translated.
-#' @param dictionary A `data.frame` (or tibble) with at least two columns: `from` and `to`
-#'   (default names are "old" and "new"). The `from` column contains the current column names
-#'   in `d`, and the `to` column contains the new column names to translate to.
-#' @param from A string specifying the column name in `dictionary` to use for current column
-#'   name matching. Defaults to "old".
-#' @param to A string specifying the column name in `dictionary` with new column names
-#'   to translate to. Defaults to "new".
+#' @param d A `data.frame` or `tbl_lazy` object whose column names need to be
+#'   translated.
+#' @param dictionary A `data.frame` (or tibble) with at least two columns
+#'   containing the current and replacement column names.
+#' @param from A string naming the column in `dictionary` that contains the
+#'   current (messy) column names. Defaults to `"messy"`.
+#' @param to A string naming the column in `dictionary` that contains the
+#'   replacement (clean) column names. Defaults to `"clean"`.
 #'
 #' @return An object of the same class as `d` with column names translated.
 #'
 #' @examples
-#' # Example dictionary
 #' dictionary <- data.frame(
-#'   recordtype = c("HH", "HH"),
-#'   new = c("Survey_Name", "Year_New"),
-#'   old = c("Survey", "Year")
+#'   messy = c("vesselNumber", "GearIdentifier"),
+#'   clean = c("vid", "gid")
 #' )
 #'
-#' # Example data.frame
-#' df <- data.frame(Survey = "NS-IBTS", Year = 2025, Quarter = 1)
+#' df <- data.frame(vesselNumber = 1, GearIdentifier = "OTB", year = 2025)
 #' wk_translate(df, dictionary)
 #'
 #' @export
-wk_translate <- function(d, dictionary, from = "old", to = "new") {
-  # Input checks
-  if (!inherits(d, c("data.frame", "tbl_lazy"))) {
+wk_translate <- function(d, dictionary, from = "messy", to = "clean") {
+  if (!inherits(d, c("data.frame", "tbl_lazy")))
     stop("`d` must be either a data.frame or a tbl_lazy object.")
-  }
-
-  if (!is.data.frame(dictionary)) {
+  if (!is.data.frame(dictionary))
     stop("`dictionary` must be a data.frame or tibble.")
-  }
-
-  if (!all(c(from, to) %in% colnames(dictionary))) {
+  if (!all(c(from, to) %in% colnames(dictionary)))
     stop("`dictionary` must contain the specified `from` and `to` columns.")
-  }
 
-  # Perform the translation
-  d <- dplyr::rename_with(d, .fn = function(col) {
-    # Match column names in the 'from' column and translate to 'to' column
-    new_names <- dictionary[[to]][match(col, dictionary[[from]])]
-    # Keep original column names if there is no match
-    ifelse(is.na(new_names), col, new_names)
-  })
-  return(d)
+  # names = new (to), values = old (from) — the convention dplyr::rename expects
+  lookup <- stats::setNames(dictionary[[from]], dictionary[[to]])
+  dplyr::rename(d, dplyr::any_of(lookup))
 }
-

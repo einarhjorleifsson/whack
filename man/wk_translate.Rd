@@ -4,39 +4,36 @@
 \alias{wk_translate}
 \title{Translate column names of a data.frame or lazy tibble using a dictionary}
 \usage{
-wk_translate(d, dictionary, from = "old", to = "new")
+wk_translate(d, dictionary, from = "messy", to = "clean")
 }
 \arguments{
-\item{d}{A \code{data.frame} or \code{tbl_lazy} object whose column names need to be translated.}
+\item{d}{A \code{data.frame} or \code{tbl_lazy} object whose column names need to be
+translated.}
 
-\item{dictionary}{A \code{data.frame} (or tibble) with at least two columns: \code{from} and \code{to}
-(default names are "old" and "new"). The \code{from} column contains the current column names
-in \code{d}, and the \code{to} column contains the new column names to translate to.}
+\item{dictionary}{A \code{data.frame} (or tibble) with at least two columns
+containing the current and replacement column names.}
 
-\item{from}{A string specifying the column name in \code{dictionary} to use for current column
-name matching. Defaults to "old".}
+\item{from}{A string naming the column in \code{dictionary} that contains the
+current (messy) column names. Defaults to \code{"messy"}.}
 
-\item{to}{A string specifying the column name in \code{dictionary} with new column names
-to translate to. Defaults to "new".}
+\item{to}{A string naming the column in \code{dictionary} that contains the
+replacement (clean) column names. Defaults to \code{"clean"}.}
 }
 \value{
 An object of the same class as \code{d} with column names translated.
 }
 \description{
-This function allows renaming column names in an input object (a \code{data.frame} or \code{tbl_lazy})
-by translating them with a user-supplied dictionary. Users can choose to translate
-column names from "old" to "new" or vice versa.
+Rename columns in a \code{data.frame} or \code{tbl_lazy} by mapping them through a
+user-supplied dictionary. Columns not found in the dictionary are left
+unchanged.
 }
 \examples{
-# Example dictionary
 dictionary <- data.frame(
-  recordtype = c("HH", "HH"),
-  new = c("Survey_Name", "Year_New"),
-  old = c("Survey", "Year")
+  messy = c("vesselNumber", "GearIdentifier"),
+  clean = c("vid", "gid")
 )
 
-# Example data.frame
-df <- data.frame(Survey = "NS-IBTS", Year = 2025, Quarter = 1)
+df <- data.frame(vesselNumber = 1, GearIdentifier = "OTB", year = 2025)
 wk_translate(df, dictionary)
 
 }
